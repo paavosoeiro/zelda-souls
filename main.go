@@ -31,7 +31,7 @@ func mainLoop() {
 		}}},
 		lastUpdate: time.Now(),
 		Mobs: []Entity{
-			{Position: Vec2{X: 5, Y: 5}, Direction: Direction{Vec2{X: 1, Y: 1}}, Speed: Vec2{X: 0.5, Y: 0.5}, Sprite: 'E'},
+			{Position: Vec2{X: 5, Y: 5}, Direction: Direction{Vec2{X: 1, Y: 1}}, Speed: Vec2{X: 1, Y: 0}, Sprite: 'E'},
 		},
 	}
 
@@ -74,10 +74,25 @@ func mainLoop() {
 }
 
 func update(state *GameState, deltaTime float64) {
+	updateChan := make(chan UpdateMessage)
 
 	for i := range state.Mobs {
-		state.Mobs[i].Update(deltaTime)
+		go state.Mobs[i].StartUpdateChannel(updateChan)
 	}
+
+	for range state.Mobs {
+		updateChan <- UpdateMessage{
+			DeltaTime:  deltaTime,
+			GridWidth:  width,
+			GridHeight: height,
+		}
+	}
+
+	close(updateChan)
+
+	//for i := range state.Mobs {
+	//	state.Mobs[i].Update(deltaTime, width, height)
+	//}
 
 }
 
