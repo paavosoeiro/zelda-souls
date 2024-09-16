@@ -11,7 +11,11 @@ type Entity struct {
 	Sprite    rune
 }
 
-func (e *Entity) update(deltaTime float64) {
+type Player struct {
+	*Entity
+}
+
+func (e *Entity) Update(deltaTime float64) {
 	normVec := e.Direction.Normalize()
 
 	movementVec := normVec.Scale(deltaTime)
