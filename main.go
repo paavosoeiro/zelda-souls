@@ -14,11 +14,10 @@ const (
 )
 
 type GameState struct {
-	playerX      int
-	playerY      int
-	mobDirection int
-	lastUpdate   time.Time
-	Mobs         []Entity
+	playerX    int
+	playerY    int
+	lastUpdate time.Time
+	Mobs       []Entity
 }
 
 func main() {
@@ -27,10 +26,9 @@ func main() {
 
 func mainLoop() {
 	state := GameState{
-		playerX:      width / 2,
-		playerY:      height / 2,
-		mobDirection: 1,
-		lastUpdate:   time.Now(),
+		playerX:    width / 2,
+		playerY:    height / 2,
+		lastUpdate: time.Now(),
 		Mobs: []Entity{
 			{Position: Vec2{X: 5, Y: 5}, Direction: Direction{Vec2{X: 1, Y: 1}}, Speed: Vec2{X: 0.5, Y: 0.5}, Sprite: 'E'},
 		},
@@ -77,19 +75,6 @@ func mainLoop() {
 func update(state *GameState, deltaTime float64) {
 
 	for i := range state.Mobs {
-		//move := state.Mobs[i].Speed * deltaTime
-		//state.Mobs[i].Position.Y += move * state.Mobs[i].Direction.Y
-		//
-		//if state.Mobs[i].Position.Y >= float64(height-1) || state.Mobs[i].Position.Y == 0 {
-		//	state.Mobs[i].Direction.Y *= -1
-		//}
-		//
-		//if state.Mobs[i].Position.Y < 0 {
-		//	state.Mobs[i].Position.Y = 0
-		//} else if state.Mobs[i].Position.Y >= float64(height) {
-		//	state.Mobs[i].Position.Y = float64(height - 1)
-		//}
-
 		state.Mobs[i].update(deltaTime)
 	}
 

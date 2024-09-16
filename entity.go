@@ -12,19 +12,6 @@ type Entity struct {
 }
 
 func (e *Entity) update(deltaTime float64) {
-	//move := e.Speed * deltaTime
-	//e.Position.Y += move * e.Direction.Y
-	//
-	//if e.Position.Y >= float64(height-1) || e.Position.Y == 0 {
-	//	e.Direction.Y *= -1
-	//}
-	//
-	//if e.Position.Y < 0 {
-	//	e.Position.Y = 0
-	//} else if e.Position.Y >= float64(height) {
-	//	e.Position.Y = float64(height - 1)
-	//}
-
 	normVec := e.Direction.Normalize()
 
 	movementVec := normVec.Scale(deltaTime)
