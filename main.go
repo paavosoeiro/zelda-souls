@@ -8,17 +8,18 @@ import (
 )
 
 const (
-	width  = 20
-	height = 20
-	fps    = 10
+	width    = 20
+	height   = 20
+	fps      = 10
+	mobSpeed = 0.5
 )
 
 type GameState struct {
 	playerX      int
 	playerY      int
-	mobX         int
-	mobY         int
 	mobDirection int
+	lastUpdate   time.Time
+	Mobs         []Entity
 }
 
 func main() {
@@ -29,9 +30,11 @@ func mainLoop() {
 	state := GameState{
 		playerX:      width / 2,
 		playerY:      height / 2,
-		mobX:         0,
-		mobY:         height / 2,
 		mobDirection: 1,
+		lastUpdate:   time.Now(),
+		Mobs: []Entity{
+			{Position: Vec2{X: 5, Y: 5}, Direction: Direction{Vec2{X: 1, Y: 1}}, Speed: Vec2{X: 0.5, Y: 0.5}, Sprite: 'E'},
+		},
 	}
 
 	err := keyboard.Open()
@@ -54,7 +57,11 @@ func mainLoop() {
 	for {
 		select {
 		case <-ticker.C:
-			update(&state)
+			now := time.Now()
+			deltaTime := now.Sub(state.lastUpdate).Seconds()
+			state.lastUpdate = now
+
+			update(&state, deltaTime)
 			render(state)
 
 		case _, ok := <-inputChannel:
@@ -62,35 +69,31 @@ func mainLoop() {
 				fmt.Println("Saindo do jogo...")
 				return
 			}
-			//switch char {
-			//case 'w':
-			//	if state.playerY > 0 {
-			//		state.playerY--
-			//	}
-			//case 's':
-			//	if state.playerY < height-1 {
-			//		state.playerY++
-			//	}
-			//case 'a':
-			//	if state.playerX > 0 {
-			//		state.playerX--
-			//	}
-			//case 'd':
-			//	if state.playerX < width-1 {
-			//		state.playerX++
-			//	}
-			//}
 		}
 
 	}
 
 }
 
-func update(state *GameState) {
-	state.mobX += state.mobDirection
-	if state.mobX == width-1 || state.mobX == 0 {
-		state.mobDirection *= -1
+func update(state *GameState, deltaTime float64) {
+
+	for i := range state.Mobs {
+		//move := state.Mobs[i].Speed * deltaTime
+		//state.Mobs[i].Position.Y += move * state.Mobs[i].Direction.Y
+		//
+		//if state.Mobs[i].Position.Y >= float64(height-1) || state.Mobs[i].Position.Y == 0 {
+		//	state.Mobs[i].Direction.Y *= -1
+		//}
+		//
+		//if state.Mobs[i].Position.Y < 0 {
+		//	state.Mobs[i].Position.Y = 0
+		//} else if state.Mobs[i].Position.Y >= float64(height) {
+		//	state.Mobs[i].Position.Y = float64(height - 1)
+		//}
+
+		state.Mobs[i].update(deltaTime)
 	}
+
 }
 
 func processInput(state *GameState, inputChannel chan rune) {
@@ -124,68 +127,30 @@ func processInput(state *GameState, inputChannel chan rune) {
 		}
 	}()
 
-	//for char := range inputChannel {
-	//	switch char {
-	//	case 'w':
-	//		if state.playerY > 0 {
-	//			state.playerY--
-	//		}
-	//	case 's':
-	//		if state.playerY < height-1 {
-	//			state.playerY++
-	//		}
-	//	case 'a':
-	//		if state.playerX > 0 {
-	//			state.playerX--
-	//		}
-	//	case 'd':
-	//		if state.playerX < width-1 {
-	//			state.playerX++
-	//		}
-	//	}
-	//}
-
-	//if char, key, err := keyboard.GetKey(); err == nil {
-	//	switch key {
-	//	case keyboard.KeyArrowUp:
-	//		if state.playerY > 0 {
-	//			state.playerY--
-	//		}
-	//	case keyboard.KeyArrowDown:
-	//		if state.playerY < height-1 {
-	//			state.playerY++
-	//		}
-	//	case keyboard.KeyArrowLeft:
-	//		if state.playerX > 0 {
-	//			state.playerX--
-	//		}
-	//	case keyboard.KeyArrowRight:
-	//		if state.playerX < width-1 {
-	//			state.playerX++
-	//		}
-	//	default:
-	//
-	//	}
-	//	if char == 'q' {
-	//		fmt.Println("Saindo do jogo...")
-	//	}
-	//}
 }
 
 func render(state GameState) {
-	clearScreen()
+	var buffer []rune
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			if x == state.playerX && y == state.playerY {
-				fmt.Print("@")
-			} else if x == state.mobX && y == state.mobY {
-				fmt.Print("M")
+				buffer = append(buffer, '@')
+			} else if len(state.Mobs) > 0 {
+				for _, mob := range state.Mobs {
+					if x == int(mob.Position.X) && y == int(mob.Position.Y) {
+						buffer = append(buffer, mob.Sprite)
+					} else {
+						buffer = append(buffer, '.')
+					}
+				}
 			} else {
-				fmt.Print(".")
+				buffer = append(buffer, '.')
 			}
 		}
-		fmt.Println()
+		buffer = append(buffer, '\n')
 	}
+	clearScreen()
+	fmt.Print(string(buffer))
 }
 
 func clearScreen() {
