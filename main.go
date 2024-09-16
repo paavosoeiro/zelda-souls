@@ -8,10 +8,9 @@ import (
 )
 
 const (
-	width    = 20
-	height   = 20
-	fps      = 10
-	mobSpeed = 0.5
+	width  = 20
+	height = 20
+	fps    = 10
 )
 
 type GameState struct {

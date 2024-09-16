@@ -38,7 +38,7 @@ func TestVec2_sum(t *testing.T) {
 				X: tt.fields.X,
 				Y: tt.fields.Y,
 			}
-			if got := v.sum(tt.args.vec); !reflect.DeepEqual(got, tt.want) {
+			if got := v.Sum(tt.args.vec); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("sum() = %v, want %v", got, tt.want)
 			}
 		})
